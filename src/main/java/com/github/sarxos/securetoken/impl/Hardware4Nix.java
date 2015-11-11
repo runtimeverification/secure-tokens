@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 
+import java.security.*;
+import java.math.BigInteger;
 
 public class Hardware4Nix {
 
@@ -13,6 +15,10 @@ public class Hardware4Nix {
 
 	public static final String getSerialNumber() {
 
+
+		if (sn == null) {
+			readCPUID();
+		}
 		if (sn == null) {
 			readDmidecode();
 		}
@@ -65,6 +71,44 @@ public class Hardware4Nix {
 					break;
 				}
 			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+	}
+
+	private static void readCPUID() {
+
+		String line = null;
+		BufferedReader br = null;
+        String currSN = "";
+
+		try {
+			br = read("lscpu");
+			while ((line = br.readLine()) != null) {
+				if (line.indexOf("Byte Order") != -1 || line.indexOf("Vendor") != -1 || line.indexOf("family") != -1 || line.indexOf("Model") != -1) {
+					currSN += line.split(":")[1].trim();
+				}
+			}
+            try {
+                MessageDigest m = MessageDigest.getInstance("MD5");
+                m.reset();
+                m.update(currSN.getBytes());
+                byte[] digest = m.digest();
+                BigInteger bigInt = new BigInteger(1,digest);
+                String hashtext = bigInt.toString(16);
+                sn = hashtext;
+            }
+            catch (Exception ex) {
+                throw new RuntimeException("System must support MD5 for Linux install!");
+            }
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} finally {
