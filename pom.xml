@@ -16,6 +16,19 @@
 	<artifactId>secure-tokens</artifactId>
 	<version>0.1-SNAPSHOT</version>
 
+    <distributionManagement>
+        <repository>
+            <id>runtime-verification</id>
+            <name>Runtime Verification Repository</name>
+            <url>http://office.runtimeverification.com:8888/repository/internal</url>
+        </repository>
+        <snapshotRepository>
+            <id>runtime-verification.snapshots</id>
+            <name>Runtime Verification Snapshot Repository</name>
+            <url>http://office.runtimeverification.com:8888/repository/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 	<name>Web Token</name>
 	<description>
 		Small set of tools allowing you to create secure encrypted tokens, which 
